@@ -1,0 +1,54 @@
+﻿@model Members
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        @* definition terms 欄位名稱*@
+        <dt class="col-sm-2">@Html.DisplayNameFor(Model=>Model.Id)</dt>
+        @* definition description 欄位值*@
+        <dd class="col-sm-9">@Html.DisplayFor(Model=>Model.Id)</dd>
+        <dt class="col-sm-2">@Html.DisplayNameFor(Model=>Model.Name)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(Model=>Model.Name)</dd>
+        <dt class="col-sm-2">@Html.DisplayNameFor(Model=>Model.Age)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(Model=>Model.Age)</dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">編輯</a>
+    <a asp-action="Index">返回員工列表</a>
+</div>
+@section topCSS
+{
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+    <style>
+        table caption {
+            caption-side: top;
+            color: white;
+            background-color: black;
+            text-align: center;
+        }
+
+        /*設定thead顏色*/
+        .table > thead > tr {
+            color: white;
+            background-color: #3176b1;
+        }
+
+        /*設定tfoot顏色及文字對齊*/
+        .table > tfoot > tr {
+            background-color: lightgreen;
+            font-size: large;
+        }
+
+        /*設定文字對齊*/
+        .table > thead > tr > th, .table > tfoot > tr {
+            text-align: center;
+        }
+    </style>
+}
