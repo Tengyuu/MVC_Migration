@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MVC_Migration.Data;
 using System.Data;
 using System.Data.SqlClient;
+using MVC_Migration.Models;
 namespace MVC_Migration.Controllers
 {
     public class DBMemberController : Controller
@@ -25,7 +26,7 @@ namespace MVC_Migration.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             //檢查是否有員工id
-            if(id == null || _context.Tablemytables1121645 == null)
+            if (id == null || _context.Tablemytables1121645 == null)
             {
                 var msgObject = new
                 {
@@ -44,6 +45,110 @@ namespace MVC_Migration.Controllers
             return View(member);
         }
         //Create新增資料功能
-
+        //Get
+        public IActionResult Create()
+        {
+            return View();
+        }
+        //Post
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name,Age")]Members members)
+        {
+            if (ModelState.IsValid)
+            {
+                //將實體加入DbSet
+                _context.Tablemytables1121645.Add(members);
+                //將資料異動儲存到資料庫
+                await _context.SaveChangesAsync();
+                //導向至Index
+                return RedirectToAction(nameof(Index));
+            }
+            return View(members);
+        }
+        //Edit
+        //Get
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null || _context.Tablemytables1121645 == null)
+            {
+                return NotFound();
+            }
+            var member = await _context.Tablemytables1121645.FindAsync(id);
+            if (member == null)
+            {
+                return NotFound();
+            }
+            return View(member);
+        }
+        //Post
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Age")]Members members)
+        {
+            if(id != members.Id)
+            {
+                return NotFound();
+            }
+            if(ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Tablemytables1121645.Update(members);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MemberExist(members.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw new Exception("錯誤!!嘻嘻");
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(members);
+        }
+        private bool MemberExist(int id)
+        {
+            //檢查使否有資料Id等於傳入的id
+            return _context.Tablemytables1121645.Any(m => m.Id == id);
+        }
+        //Delete
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) 
+            {
+                return NotFound();
+            }
+            var member = await _context.Tablemytables1121645.FirstOrDefaultAsync(m => m.Id == id);
+            if (member == null)
+            {
+                return NotFound();
+            }
+            return View(member);
+        }
+        //Post
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if(_context.Tablemytables1121645 == null)
+            {
+                return Problem("Entity set 'CmsContext.Database' is null");
+            }
+            //以Id搜尋實體
+            var member = await _context.Tablemytables1121645.FindAsync(id);
+            //刪除
+            if (member != null)
+            {
+                _context.Tablemytables1121645.Remove(member);
+                await _context.SaveChangesAsync();
+            }       
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
