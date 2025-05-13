@@ -1,2 +1,1 @@
-MVC連接SQL
-Create/Detail/Delete
+課本P11-36~11-62
