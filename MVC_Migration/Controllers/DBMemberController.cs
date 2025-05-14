@@ -4,6 +4,9 @@ using MVC_Migration.Data;
 using System.Data;
 using System.Data.SqlClient;
 using MVC_Migration.Models;
+using X.PagedList;
+using X.PagedList.Extensions;
+using X.PagedList.Mvc;
 namespace MVC_Migration.Controllers
 {
     public class DBMemberController : Controller
@@ -149,6 +152,55 @@ namespace MVC_Migration.Controllers
                 await _context.SaveChangesAsync();
             }       
             return RedirectToAction(nameof(Index));
+        }
+        //分頁
+        public async Task<IActionResult> Index2(int? page = 1)
+        {
+            //每頁幾筆
+            const int pageSize = 3;
+            //處理頁數
+            ViewBag.userModel = GetPagedProcess(page, pageSize);
+            //填入頁面資料
+            return View(await _context.Tablemytables1121645.Skip<Members>(pageSize * ((page ?? 1) - 1)).Take(pageSize).ToArrayAsync());
+        }
+        protected IPagedList<Members> GetPagedProcess(int? page,int pageSize)
+        {
+            //過濾從client傳送過來有問題頁數
+            if (page.HasValue && page < 1) 
+                return null;
+            //從資料庫取得頁數
+            var listUnpaged = GetStufFromDatabase();
+            IPagedList<Members> pagelist = listUnpaged.ToPagedList(page ?? 1, pageSize);
+            //過濾從client傳送過來有問題頁數，包含判斷有問題的頁數邏輯
+            if (pagelist.PageNumber != 1 && page.HasValue && page > pagelist.PageCount)
+                return null;
+           return pagelist;
+        }
+        protected IQueryable<Members> GetStufFromDatabase()
+        {
+            return _context.Tablemytables1121645;
+        }
+
+        //查詢
+        //[HttpGet]
+        //public IActionResult InputQuery()
+        //{
+        //    return View();
+        //}
+        //[HttpGet]
+        public IActionResult Query()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Query(int Id,int Age)
+        {
+            var users = await (from p in _context.Tablemytables1121645
+                               where p.Id == Id && p.Age == Age
+                               //where p.Id >= Id
+                               orderby p.Name
+                               select p).ToArrayAsync();
+            return View(users);
         }
     }
 }
