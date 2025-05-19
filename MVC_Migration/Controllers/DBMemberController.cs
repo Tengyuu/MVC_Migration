@@ -7,6 +7,9 @@ using MVC_Migration.Models;
 using X.PagedList;
 using X.PagedList.Extensions;
 using X.PagedList.Mvc;
+using Microsoft.AspNetCore.Mvc.Core.Infrastructure;
+using NuGet.Protocol.Plugins;
+using Microsoft.CodeAnalysis.CSharp;
 namespace MVC_Migration.Controllers
 {
     public class DBMemberController : Controller
@@ -22,6 +25,12 @@ namespace MVC_Migration.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            //New Add session
+            if (HttpContext.Session.GetString("Id") == null)
+            {
+                TempData["Message"] = "Please Login!";
+                return RedirectToAction("Login1", "DBMember");
+            }
             var users = await _context.Tablemytables1121645.ToListAsync();
             return View(users);
         }
@@ -182,12 +191,12 @@ namespace MVC_Migration.Controllers
         }
 
         //查詢
-        //[HttpGet]
-        //public IActionResult InputQuery()
-        //{
-        //    return View();
-        //}
-        //[HttpGet]
+        [HttpGet]
+        public IActionResult InputQuery()
+        {
+            return View();
+        }
+        [HttpGet]
         public IActionResult Query()
         {
             return View();
@@ -196,11 +205,105 @@ namespace MVC_Migration.Controllers
         public async Task<IActionResult> Query(int Id,int Age)
         {
             var users = await (from p in _context.Tablemytables1121645
-                               where p.Id == Id && p.Age == Age
-                               //where p.Id >= Id
+                                   //where p.Id == Id && p.Age == Age
+                               where p.Id >= Id
                                orderby p.Name
                                select p).ToArrayAsync();
             return View(users);
+        }
+        //下拉式選單
+        [HttpGet]
+        public async Task<IActionResult> SelectQuery()
+        {
+            var names = await (from p in _context.Tablemytables1121645
+                               orderby p.Name
+                               select p.Name).Distinct()/*顯示不重複*/.ToArrayAsync();
+            ViewBag.Mylist = names;
+            return View(names);
+        }
+        [HttpPost]
+        public async Task<IActionResult> SelectName(string fName)
+        {
+            var users = await (from p in _context.Tablemytables1121645
+                               where p.Name == fName
+                               orderby p.Name
+                               select p).Distinct().ToArrayAsync();
+            return View(users);
+        }
+        //登入檢查
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult LoginCheck()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> LoginCheck(int Id, int Age)
+        {
+            var users = await (from p in _context.Tablemytables1121645
+                               where p.Id == Id && p.Age == Age
+                               orderby p.Name
+                               select p).ToListAsync();
+            if(users.Count()!=0)
+            {
+                return RedirectToAction("Index");
+            }
+            return View(users);
+        }
+
+        //session
+        public IActionResult Page1()
+        {
+            if(HttpContext.Session.GetString("Id") == null)
+            {
+                TempData["Message"] = "Please Login!";
+                return View();
+            }
+            else
+            {
+                return View();
+            }
+        }
+        public IActionResult Page2()
+        {
+            HttpContext.Session.SetString("Id", "Logined");
+            TempData["Message"] = "Logged in!";
+
+            return View();
+        }
+        [HttpGet]
+        public IActionResult Login1()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Login1(string Id, string Name)
+        {
+            if (Id == null && Name == null)
+            {
+                TempData["Message"] = "Please enter account and password!";
+                return RedirectToAction("Login1", "DBMember");
+            }
+
+            var users = await (from p in _context.Tablemytables1121645
+                               where p.Id == Convert.ToInt32(Id) && p.Name == Name
+                               orderby p.Name
+                               select p).ToListAsync();
+            if (users.Count != 0)
+            {
+                HttpContext.Session.SetString("Id", Id);
+                TempData["Meessage"] = "Logged in!";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["Message"] = "Login failed!";
+                return RedirectToAction("Login1", "DBMember");
+            }
         }
     }
 }

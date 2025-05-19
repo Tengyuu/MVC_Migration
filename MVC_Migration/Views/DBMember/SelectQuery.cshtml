@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "SelectQuery";
+}
+
+<h1>SelectQuery</h1>
+
+<form method="post" action="@Url.Action("SelectName")">
+    <div class="form-group">
+        <label for="fName" class="control-label col-md-2">姓名</label>
+        <div class="col-md-10">
+            <select id="fName" name="fName">
+                @foreach (var item in ViewBag.Mylist)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="查詢" class="btn btn-primary" />
+        </div>
+    </div>
+</form>

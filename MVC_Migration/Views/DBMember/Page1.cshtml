@@ -1,0 +1,25 @@
+﻿
+@{
+    ViewData["Title"] = "Page1";
+}
+
+<h1>Page1</h1>
+
+
+@if(TempData["Message"]!=null)
+{
+    if(TempData["Message"].ToString()=="Please Login!")
+    {
+        <script>alert('@TempData["Message"]')</script>
+        <h3>未登入，尚未寫入Session</h3>
+    }
+    else
+    {
+        <h3>@TempData["Message"]</h3>
+    }
+}
+else
+{
+    <script>alert('@TempData["Message"]')</script>
+    <h3>已登入，已寫入Session</h3>
+}
