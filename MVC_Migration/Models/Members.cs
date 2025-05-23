@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MVC_Migration.Models
 {
+    [Table("1121645table")]
     public class Members
     {
         //[Required] int,float,decimal,datetime已繼承Required，無須再加Required
